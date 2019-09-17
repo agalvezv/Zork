@@ -9,7 +9,7 @@ namespace Zork
             Console.WriteLine("Welcome To Zork!");
 
             string inputString = Console.ReadLine();
-            Commands command = ToCommand(inputString.Trim().ToUpper());
+            Commands command = ToCommand(inputString.Trim());
             Console.WriteLine(command);
         }
 
