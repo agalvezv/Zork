@@ -12,7 +12,7 @@ namespace Zork
             Commands command = Commands.UNKNOWN;
             while (command != Commands.QUIT)
             {
-                Console.WriteLine(Rooms[PlayerPosition]);
+                Console.WriteLine(Rooms[LocationColumn,LocationRow]);
                 Console.Write("> ");
                 command = ToCommand(Console.ReadLine().Trim());
 
@@ -85,9 +85,6 @@ namespace Zork
             return MoveSuccessfully;
         }
 
-
-
-        }
         private static readonly HashSet<Commands> Directions = new HashSet<Commands>()
         {
         Commands.NORTH,
@@ -96,8 +93,19 @@ namespace Zork
         Commands.WEST
         };
 
-        private static string[] Rooms = { "Forest", "West of House", "Behind House", "Clearning", "Canyon View" };
+        private static string[,] Rooms =
+        {
+            { "Rocky Trail", "South of House", "Canyon View" },
+            { "Forest", "West of House", "Behind House"},
+            { "Dense Woods", "North of House", "Clearing" }
+        };
+
+        private static int LocationColumn = 1;
+        private static int LocationRow = 1;
         private static int PlayerPosition = 1;
+
+
+
     }
 }
 
