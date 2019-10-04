@@ -5,110 +5,161 @@ namespace Zork
 {
     class Program
     {
+
+        private static Room CurrentRoom
+        {
+            get
+            {
+                return Rooms[Location.Row, Location.Column];
+            }
+        }
         static void Main(string[] args)
         {
-            Console.WriteLine("Welcome To Zork!");
+            Console.WriteLine("Welcome to Zork!");
+            InitializeRoomDescriptions();
+
+            Location = IndexOf(Rooms, "West of House");
+            Assert.IsTrue(Location != (-1, 1));
 
             Commands command = Commands.UNKNOWN;
             while (command != Commands.QUIT)
             {
-                Console.WriteLine(Rooms[LocationColumn,LocationRow]);
+                Console.WriteLine(CurrentRoom);
                 Console.Write("> ");
                 command = ToCommand(Console.ReadLine().Trim());
 
-                string response;
                 switch (command)
                 {
                     case Commands.QUIT:
-                        response = "Thank you for playing!";
+                        Console.WriteLine("Thank you for playing!");
                         break;
+
                     case Commands.LOOK:
-                        response = "This is an open field west of a white house, with a boarded front door. \nA rubber mat saying 'Welcome to Zork!' lies by the door.";
+                        Console.WriteLine(CurrentRoom.Description);
                         break;
 
                     case Commands.NORTH:
                     case Commands.SOUTH:
                     case Commands.EAST:
                     case Commands.WEST:
-                        bool MoveSuccessfully = Move(command);
-                        if (MoveSuccessfully)
+                        if (Move(command) == false)
                         {
-                            response = $"You moved {command}.";
-                        }
-                        else
-                        {
-                            response = "There is only Void.";
+                            Console.WriteLine("The way is shut!");
                         }
                         break;
 
                     default:
-                        response = "Unknown command.";
+                        Console.WriteLine("Uknown Command.");
                         break;
+                }
+            }
+        }
+
+        //Checking if true, then selects proper op
+        //=> can use if only one line within the brackets, the return is imp
+
+        private static Commands ToCommand(string commandString) => Enum.TryParse(commandString, ignoreCase: true, out Commands result) ? result : Commands.UNKNOWN; //THREE OPERATORS: If the first segment is true, it returns the statement before the : otherwise it returns the statement after the :.
+
+        private static readonly Commands[] Directions =
+        {
+            Commands.NORTH,
+            Commands.SOUTH,
+            Commands.EAST,
+            Commands.WEST,
+        };
+
+
+        private static readonly Room[,] Rooms =
+        {
+            {   new Room("Rocky Trail")      , new Room("South of House"),   new Room  ("Canyon View") },
+            {   new Room("Forest")           , new Room("West of House"),    new Room  ("Behind House") },
+            {   new Room("Dense Woods")      , new Room("North of House"),   new Room  ("Clearing") }
+        };
+
+        private static (int Row, int Column) Location;
+        private static void SpawnPlayer(string roomName)
+        {
+
+            Location = IndexOf(Rooms, roomName);
+            if ((Location.Row, Location.Column) == (-1, -1))
+            {
+                throw new Exception($"Did not find room: {roomName}");
+            }
+
+        }
+
+        private static (int Row, int Column) IndexOf(Room[,] values, string valueToFind)
+        {
+            for (int row = 0; row < Rooms.GetLength(0); row++)
+            {
+                for (int column = 0; column < Rooms.GetLength(1); column++)
+                {
+                    if (valueToFind == values[row, column].Name)
+                    {
+
+                        return (row, column);
+                    }
 
                 }
 
-                Console.WriteLine(response);
             }
-        }
 
-        private static Commands ToCommand(string commandString) => (Enum.TryParse(commandString, true, out Commands result) ? result : Commands.UNKNOWN); //OP1 ? OP2 : OP 3
-        //Checking if true, then selects proper op
-        //=> can use if only one line within the brackets, the return is imp
+            return (-1, -1);
+        }
         private static bool Move(Commands command)
         {
-            if (Directions.Contains(command) == false)
-            {
-                throw new ArgumentException();
-            }
 
-            bool MoveSuccessfully;
 
+            bool isValidMove = true;
             switch (command)
             {
-                case Commands.EAST when PlayerPosition < Rooms.Length - 1:
+                case Commands.NORTH when Location.Row < Rooms.GetLength(0) - 1:
 
-                    PlayerPosition++;
-                    MoveSuccessfully = true;
+                    Location.Row++;
                     break;
-                case Commands.WEST when PlayerPosition > 0:
-
-                    PlayerPosition--;
-                    MoveSuccessfully = true;
+                case Commands.SOUTH when Location.Row > 0:
+                    Location.Row--;
+                    break;
+                case Commands.EAST when Location.Column < Rooms.GetLength(1) - 1:
+                    Location.Column++;
+                    break;
+                case Commands.WEST when Location.Column > 0:
+                    Location.Column--;
                     break;
 
                 default:
-                    MoveSuccessfully = false;
+                    isValidMove = false;
                     break;
-
             }
 
-            return MoveSuccessfully;
+            return isValidMove;
         }
 
-        private static readonly HashSet<Commands> Directions = new HashSet<Commands>()
+        private static void InitializeRoomDescriptions()
         {
-        Commands.NORTH,
-        Commands.SOUTH,
-        Commands.EAST,
-        Commands.WEST
-        };
+            Rooms[0, 0].Description = "You are on a rock-strewn trail. ";
+            Rooms[0, 1].Description = "You are facing the south side of a white house. There is no door here, and all the windows are barred. ";
+            Rooms[0, 2].Description = "You are at the top of the Great Canyon on its south wall. ";
 
-        private static string[,] Rooms =
-        {
-            { "Rocky Trail", "South of House", "Canyon View" },
-            { "Forest", "West of House", "Behind House"},
-            { "Dense Woods", "North of House", "Clearing" }
-        };
+            Rooms[1, 0].Description = "This is a forest, with trees in all directions around you. ";
+            Rooms[1, 1].Description = "This is an open field west of a white house, with a boarded front door.";
+            Rooms[1, 2].Description = "You are behind the white house. In one corner of the house there is a small window which is slightly ajar ";
 
-        private static int LocationColumn = 1;
-        private static int LocationRow = 1;
-        private static int PlayerPosition = 1;
-        //C# How To Program, C# for programmers
+            Rooms[2, 0].Description = "This is a dimly lit forest, with large trees all around. to the east, there appears to be sunlight. ";
+            Rooms[2, 1].Description = "You are facing the north side of a white house. There is no door here, and all the windows are barred.";
+            Rooms[2, 2].Description = "You are in a clearing, with a forest surrounding you on the west and south. ";
 
+        }
 
     }
+
 }
 
+
+//private static int LocationColumn = 1;
+// private static int LocationRow = 1;
+//private static int PlayerPosition = 1;
+////C# How To Program, C# for programmers
 
 
 
