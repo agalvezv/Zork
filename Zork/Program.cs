@@ -15,13 +15,22 @@ namespace Zork
         }
         static void Main(string[] args)
         {
+
             Console.WriteLine("Welcome to Zork!");
-            InitializeRoomDescriptions();
+            //InitializeRoomDescriptions("Rooms.txt");
+            const string defaultRoomsFileName = "Rooms.txt";
+            string roomsFileName = args.Length > 0 ? args[0] : defaultRoomsFileName;
+            /*
+            Equivalent of if else statement doing the same exact shit
+            */
+            //from the command line
 
             Location = IndexOf(Rooms, "West of House");
             Assert.IsTrue(Location != (-1, 1));
 
-            InitializeRoomDescriptions();
+            //start button/command line/directory(type c and d)//dotnet run   Zorkrooms.txt
+            //linq, we are querying things
+            InitializeRoomDescriptions(roomsFileName);
 
             //int a = null;      Discussion about value types, structs
             // bool result = a == b;                 the still false example because while they have similar  data, still different obj
@@ -162,6 +171,24 @@ namespace Zork
                 //roomMap[room.Name] = rooms;
             }
 
+            string[] lines = File.ReadAllLines(roomsFilename);
+            foreach (string line in lines)
+            {
+                const string fieldDelimiter = "##";
+                const int expectedFieldCount = 2;
+
+                string[] fields = line.Split(fieldDelimiter);
+                if (fields.Length != expectedFieldCount)
+                {
+                    throw new InvalidDataException("Invalid record.");
+                }
+
+                string name = fields[(int)fields.Name]; //fields[0];
+                string description = fields[(int)Fields.Description];
+
+                roomMap[name].Description = description;//fields[1];
+            }
+
 
 
             roomMap["Rocky Trail"].Description = "You are on a rock-strewn trail. ";
@@ -181,6 +208,19 @@ namespace Zork
             //chaining and open addressing
 
         }
+        private enum Fields
+        {
+            Name = 0,
+            Dscription = 1
+        }
+        //Magic numbers
+        private enum CommandLineArguments
+        {
+            RoomsFilename = 0,
+            UseLinq
+        }
+
+
 
     }
 
