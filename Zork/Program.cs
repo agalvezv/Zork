@@ -8,6 +8,8 @@ namespace Zork
 {
     class Program
     {
+        //Pre-13 Conditions
+        
 
         static void Main(string[] args)
         {

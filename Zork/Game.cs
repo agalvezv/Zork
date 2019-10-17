@@ -8,6 +8,10 @@ namespace Zork
 {
     public class Game
     {
+        //Reintegrating Notes in the future
+
+
+
         public World World { get; }
 
         [JsonIgnore]
@@ -57,7 +61,7 @@ namespace Zork
                         }
                         break;
                     case Commands.UNKNOWN:
-                        Console.WriteLine("Uknown Command.");
+                        Console.WriteLine("Unknown Command.");
                         break;
                 }
             }
